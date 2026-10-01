@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+    id 'jacoco'
+}
+
+group = 'ru.student.qa'
+version = '1.0'
+
+repositories { mavenCentral() }
+
+java { toolchain { languageVersion = JavaLanguageVersion.of(17) } }
+
+dependencies {
+    implementation 'org.xerial:sqlite-jdbc:3.46.1.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+    useJUnitPlatform()
+    systemProperty 'demoFailure', project.findProperty('demoFailure') ?: 'false'
+    testLogging { events 'passed', 'failed', 'skipped'; exceptionFormat 'full' }
+    finalizedBy jacocoTestReport
+}
+
+jacoco { toolVersion = '0.8.12' }
+
+jacocoTestReport {
+    dependsOn test
+    reports { html.required = true; xml.required = true; csv.required = true }
+}
+
+tasks.register('updateQaMetrics', JavaExec) {
+    dependsOn jacocoTestReport
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'ru.student.qa.MetricsUpdater'
+}
+
+tasks.register('qaReport') {
+    dependsOn updateQaMetrics
+    doLast {
+        println '=== QA REPORT ==='
+        println "JUnit HTML: ${layout.buildDirectory.get()}/reports/tests/test/index.html"
+        println "JaCoCo HTML: ${layout.buildDirectory.get()}/reports/jacoco/test/html/index.html"
+        println "SQLite DB: ${layout.projectDirectory.get()}/qa-results/qa-tests.db"
+    }
+}

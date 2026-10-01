@@ -1,0 +1,2 @@
+CREATE TABLE test_cases (id INTEGER PRIMARY KEY AUTOINCREMENT, test_set TEXT NOT NULL, input TEXT NOT NULL, expected REAL NOT NULL);
+CREATE TABLE test_runs (id INTEGER PRIMARY KEY AUTOINCREMENT, run_date TEXT NOT NULL, test_set TEXT NOT NULL, total_tests INTEGER NOT NULL, passed_tests INTEGER NOT NULL, failed_tests INTEGER NOT NULL, execution_ms INTEGER NOT NULL, coverage_percent REAL, complexity REAL);
